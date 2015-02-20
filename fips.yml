@@ -1,0 +1,9 @@
+#
+# fips-unittestpp
+#
+---
+exports:
+    header-dirs: [ gtest/include ]
+    modules:
+        googletest: gtest
+
