@@ -3,7 +3,9 @@
 #
 ---
 exports:
-    header-dirs: [ gtest/include ]
+    header-dirs:
+        - gtest/include
+        - gtest
     modules:
         googletest: gtest
 
