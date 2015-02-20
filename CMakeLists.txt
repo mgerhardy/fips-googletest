@@ -1,5 +1,5 @@
 #
-# project: fips-unittestpp
+# project: fips-googletest
 #
 cmake_minimum_required(VERSION 2.8)
 
@@ -11,5 +11,3 @@ fips_setup()
 fips_project(fips-googletest)
 fips_add_subdirectory(gtest)
 fips_finish()
-
-
