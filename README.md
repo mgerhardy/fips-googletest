@@ -6,6 +6,12 @@ fipsified googletest
 see https://github.com/mgerhardy/fips-googletest.git and https://github.com/floooh/fips
 
 Add unit tests to your modules like this:
+
+In your `fips.yml`:
+```cmake
+imports:
+     fips-googletest:
+         git: https://github.com/mgerhardy/fips-googletest.git
 ```
 fips_begin_module(attrib)
 	fips_files(
@@ -26,9 +32,5 @@ gtest_begin(attrib)
 gtest_end()
 ```
 
-Add this to your root CMakeLists.txt to get the above mentioned macros
-
-```
-get_filename_component(GOOGLETESTS_ROOT_DIR "../fips-googletest" ABSOLUTE)
-include("${GOOGLETESTS_ROOT_DIR}/cmake/googleunittests.cmake")
-```
+You may set FIPS_GTEST_DISABLE_MAIN to 1 to disable the automatic generation of
+a main() that will run the tests.

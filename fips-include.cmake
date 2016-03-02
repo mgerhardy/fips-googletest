@@ -37,12 +37,14 @@ macro(gtest_end)
         # add unittestpp lib dependency
         fips_deps(googletest)
 
-        set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${CurTargetName}_main.cpp)
-        # FIXME: allow the project to override this
-        configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
+        if (NOT FIPS_GTEST_DISABLE_MAIN)
+            set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${CurTargetName}_main.cpp)
+            # FIXME: allow the project to override this
+            configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
+            # generate a command line app
+            list(APPEND CurSources ${main_path})
+        endif()
 
-        # generate a command line app
-        list(APPEND CurSources ${main_path})
         fips_end_app()
         set_target_properties(${CurTargetName} PROPERTIES FOLDER "tests")
 
