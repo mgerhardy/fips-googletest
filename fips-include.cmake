@@ -5,10 +5,10 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-#   fips_begin_googleunittest(name)
+#   gtest_begin(name)
 #   Begin defining a unit test.
 #
-macro(begin_googleunittest name)
+macro(gtest_begin name)
     if (FIPS_UNITTESTS)
         set(FipsAddFilesEnabled 1)
         fips_reset(${CurTargetName}Test)
@@ -23,10 +23,10 @@ macro(begin_googleunittest name)
 endmacro()
 
 #-------------------------------------------------------------------------------
-#   end_googleunittest()
+#   gtest_end()
 #   End defining a unittest named 'name' from sources in 'dir'
 #
-macro(end_googleunittest)
+macro(gtest_end)
     if (FIPS_UNITTESTS)
         if (FIPS_CMAKE_VERBOSE)
             message("Unit Test: name=" ${CurTargetName})
