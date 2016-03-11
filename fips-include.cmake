@@ -4,6 +4,8 @@
 #   Macros for generating google unit tests.
 #-------------------------------------------------------------------------------
 
+set(FIPS_GOOGLETESTDIR ${CMAKE_CURRENT_LIST_DIR})
+
 #-------------------------------------------------------------------------------
 #   gtest_begin(name)
 #   Begin defining a unit test.
@@ -35,33 +37,9 @@ macro(gtest_end)
         # add unittestpp lib dependency
         fips_deps(googletest)
 
-        # FIXME: generate a scratch main-source-file
         set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${CurTargetName}_main.cpp)
-        file(WRITE ${main_path}
-            "// machine generated, do not edit\n"
-            "#include \"gtest/gtest.h\"\n"
-            "\n"
-            "class LocalEnv: public ::testing::Environment {\n"
-            "public:\n"
-                "virtual ~LocalEnv() {\n"
-                "}\n"
-                "virtual void SetUp() override {\n"
-                "}\n"
-                "virtual void TearDown() override {\n"
-                "}\n"
-            "};\n"
-            "\n"
-            "extern \"C\" int main (int argc, char **argv) {\n"
-            "    ::testing::AddGlobalTestEnvironment(new LocalEnv);\n"
-            "    ::testing::InitGoogleTest(&argc, argv);\n"
-            "    try {\n"
-            "        return RUN_ALL_TESTS();\n"
-            "    } catch (const std::exception& e) {\n"
-            "        std::cerr << e.what() << std::endl;\n"
-            "        return EXIT_FAILURE;\n"
-            "    }\n"
-            "}\n"
-        )
+        # FIXME: allow the project to override this
+        configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
 
         # generate a command line app
         list(APPEND CurSources ${main_path})
