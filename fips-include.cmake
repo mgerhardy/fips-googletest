@@ -11,7 +11,16 @@ set(FIPS_GOOGLETESTDIR ${CMAKE_CURRENT_LIST_DIR})
 #   Begin defining a unit test.
 #
 macro(gtest_begin name)
+    set(options NO_TEMPLATE)
+    set(oneValueArgs TEMPLATE)
+    set(multiValueArgs)
+    cmake_parse_arguments(_gt "${options}" "${oneValueArgs}" "" ${ARGN})
+
     if (FIPS_UNITTESTS)
+        if (_gt_UNPARSED_ARGUMENTS)
+            message(FATAL_ERROR "gtest_begin(): called with invalid args '${_gt_UNPARSED_ARGUMENTS}'")
+        endif()
+
         set(FipsAddFilesEnabled 1)
         fips_reset(${CurTargetName}Test)
         if (FIPS_OSX)
@@ -37,14 +46,17 @@ macro(gtest_end)
         # add unittestpp lib dependency
         fips_deps(googletest)
 
-        if (NOT FIPS_GTEST_DISABLE_MAIN)
+        if (NOT _gt_NO_TEMPLATE)
             set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${CurTargetName}_main.cpp)
-            # FIXME: allow the project to override this
-            configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
-            # generate a command line app
+            if (_gt_TEMPLATE)
+                configure_file(${_gt_TEMPLATE} ${main_path})
+            else()
+                configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
+            endif()
             list(APPEND CurSources ${main_path})
         endif()
 
+        # generate a command line app
         fips_end_app()
         set_target_properties(${CurTargetName} PROPERTIES FOLDER "tests")
 

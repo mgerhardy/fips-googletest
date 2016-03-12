@@ -32,5 +32,6 @@ gtest_begin(attrib)
 gtest_end()
 ```
 
-You may set FIPS_GTEST_DISABLE_MAIN to 1 to disable the automatic generation of
-a main() that will run the tests.
+You may call gtest_begin with NO_TEMPLATE to disable the automatic generation of
+a main() that will run the tests. You can also override the template c++ code that
+is used to generate the main() by defining TEMPLATE path_to_template.cpp.in
