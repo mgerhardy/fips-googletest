@@ -13,10 +13,14 @@ public:
 extern "C" int main (int argc, char *argv[]) {
     ::testing::AddGlobalTestEnvironment(new LocalEnv);
     ::testing::InitGoogleTest(&argc, argv);
+#if __cpp_exceptions
     try {
+#endif
         return RUN_ALL_TESTS();
+#if __cpp_exceptions
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+#endif
 }
