@@ -43,7 +43,7 @@ macro(gtest_end)
             message("Unit Test: name=" ${CurTargetName})
         endif()
 
-        # add unittestpp lib dependency
+        # add googletest lib dependency
         fips_deps(googletest)
 
         if (NOT _gt_NO_TEMPLATE)
