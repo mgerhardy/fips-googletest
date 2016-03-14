@@ -8,11 +8,13 @@ see https://github.com/mgerhardy/fips-googletest.git and https://github.com/floo
 Add unit tests to your modules like this:
 
 In your `fips.yml`:
-```cmake
-imports:
-     fips-googletest:
-         git: https://github.com/mgerhardy/fips-googletest.git
 ```
+imports:
+    fips-googletest:
+        git: https://github.com/mgerhardy/fips-googletest.git
+```
+
+```cmake
 fips_begin_module(attrib)
 	fips_files(
 		Attributes.h Attributes.cpp
