@@ -3,7 +3,7 @@ fips-googletest
 
 fipsified googletest
 
-see https://github.com/mgerhardy/fips-googletest.git and https://github.com/floooh/fips
+see https://github.com/mgerhardy/fips-googletest and https://github.com/floooh/fips
 
 Add unit tests to your modules like this:
 
