@@ -1,15 +1,13 @@
-if (FIPS_UNITTESTS)
-    fips_begin_lib(googletest)
-        fips_dir(src)
-        fips_files(
-            gtest.cc
-            gtest-death-test.cc
-            gtest-filepath.cc
-            gtest-internal-inl.h
-            gtest-port.cc
-            gtest-printers.cc
-            gtest-test-part.cc
-            gtest-typed-test.cc
-        )
-    fips_end_lib()
-endif()
+fips_begin_lib(googletest)
+    fips_dir(src)
+    fips_files(
+        gtest.cc
+        gtest-death-test.cc
+        gtest-filepath.cc
+        gtest-internal-inl.h
+        gtest-port.cc
+        gtest-printers.cc
+        gtest-test-part.cc
+        gtest-typed-test.cc
+    )
+fips_end_lib()
