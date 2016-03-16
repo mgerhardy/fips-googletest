@@ -16,20 +16,16 @@ macro(gtest_begin name)
     set(multiValueArgs)
     cmake_parse_arguments(_gt "${options}" "${oneValueArgs}" "" ${ARGN})
 
-    if (FIPS_UNITTESTS)
-        if (_gt_UNPARSED_ARGUMENTS)
-            message(FATAL_ERROR "gtest_begin(): called with invalid args '${_gt_UNPARSED_ARGUMENTS}'")
-        endif()
+    if (_gt_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "gtest_begin(): called with invalid args '${_gt_UNPARSED_ARGUMENTS}'")
+    endif()
 
-        set(FipsAddFilesEnabled 1)
-        fips_reset(${CurTargetName}Test)
-        if (FIPS_OSX)
-            set(CurAppType "windowed")
-        else()
-            set(CurAppType "cmdline")
-        endif()
+    set(FipsAddFilesEnabled 1)
+    fips_reset(${CurTargetName}Test)
+    if (FIPS_OSX)
+        set(CurAppType "windowed")
     else()
-        set(FipsAddFilesEnabled)
+        set(CurAppType "cmdline")
     endif()
 endmacro()
 
@@ -38,35 +34,33 @@ endmacro()
 #   End defining a unittest named 'name' from sources in 'dir'
 #
 macro(gtest_end)
-    if (FIPS_UNITTESTS)
-        if (FIPS_CMAKE_VERBOSE)
-            message("Unit Test: name=" ${CurTargetName})
+    if (FIPS_CMAKE_VERBOSE)
+        message("Unit Test: name=" ${CurTargetName})
+    endif()
+
+    # add googletest lib dependency
+    fips_deps(googletest)
+
+    if (NOT _gt_NO_TEMPLATE)
+        set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${CurTargetName}_main.cpp)
+        if (_gt_TEMPLATE)
+            configure_file(${_gt_TEMPLATE} ${main_path})
+        else()
+            configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
         endif()
+        list(APPEND CurSources ${main_path})
+    endif()
 
-        # add googletest lib dependency
-        fips_deps(googletest)
+    # generate a command line app
+    fips_end_app()
+    set_target_properties(${CurTargetName} PROPERTIES FOLDER "tests")
 
-        if (NOT _gt_NO_TEMPLATE)
-            set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${CurTargetName}_main.cpp)
-            if (_gt_TEMPLATE)
-                configure_file(${_gt_TEMPLATE} ${main_path})
-            else()
-                configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
-            endif()
-            list(APPEND CurSources ${main_path})
-        endif()
+    # add as cmake unit test
+    add_test(NAME ${CurTargetName} COMMAND ${CurTargetName})
 
-        # generate a command line app
-        fips_end_app()
-        set_target_properties(${CurTargetName} PROPERTIES FOLDER "tests")
-
-        # add as cmake unit test
-        add_test(NAME ${CurTargetName} COMMAND ${CurTargetName})
-
-        # if configured, start the app as post-build-step
-        if (FIPS_UNITTESTS_RUN_AFTER_BUILD)
-            add_custom_command (TARGET ${CurTargetName} POST_BUILD COMMAND ${CurTargetName})
-        endif()
+    # if configured, start the app as post-build-step
+    if (FIPS_UNITTESTS_RUN_AFTER_BUILD)
+        add_custom_command (TARGET ${CurTargetName} POST_BUILD COMMAND ${CurTargetName})
     endif()
     set(FipsAddFilesEnabled 1)
 endmacro()
