@@ -64,3 +64,90 @@ macro(gtest_end)
     endif()
     set(FipsAddFilesEnabled 1)
 endmacro()
+
+#-------------------------------------------------------------------------------
+#   gtest_suite_begin(name)
+#   Begin defining a unit test suite.
+#
+macro(gtest_suite_begin name)
+    set(options NO_TEMPLATE)
+    set(oneValueArgs TEMPLATE)
+    set(multiValueArgs)
+    cmake_parse_arguments(${name} "${options}" "${oneValueArgs}" "" ${ARGN})
+
+    if (${name}_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "gtest_suite_begin(): called with invalid args '${${name}_UNPARSED_ARGUMENTS}'")
+    endif()
+    if (FIPS_OSX)
+        set(${name}_CurAppType "windowed")
+    else()
+        set(${name}_CurAppType "cmdline")
+    endif()
+    set_property(GLOBAL PROPERTY ${name}_Sources "")
+    set_property(GLOBAL PROPERTY ${name}_Deps "")
+endmacro()
+
+#-------------------------------------------------------------------------------
+#   gtest_suite_files(files)
+#   Adds files to a test suite
+#
+macro(gtest_suite_files name files)
+    get_property(list GLOBAL PROPERTY ${name}_Sources)
+    foreach(entry ${files})
+        list(APPEND list ${CMAKE_CURRENT_SOURCE_DIR}/${entry})
+    endforeach()
+    set_property(GLOBAL PROPERTY ${name}_Sources ${list})
+endmacro()
+
+#-------------------------------------------------------------------------------
+#   gtest_suite_deps(files)
+#   Adds files to a test suite
+#
+macro(gtest_suite_deps name deps)
+    get_property(list GLOBAL PROPERTY ${name}_Deps)
+    list(APPEND list ${deps})
+    set_property(GLOBAL PROPERTY ${name}_Deps ${list})
+endmacro()
+
+#-------------------------------------------------------------------------------
+#   gtest_suite_end()
+#   End defining a unittest suite
+#
+macro(gtest_suite_end name)
+    if (FIPS_CMAKE_VERBOSE)
+        message("Unit Test: name=" ${name})
+    endif()
+
+    fips_begin_app(${name} ${${name}_CurAppType})
+    get_property(srcs GLOBAL PROPERTY ${name}_Sources)
+    get_property(deps GLOBAL PROPERTY ${name}_Deps)
+    message(STATUS "${name}_Sources => ${srcs}")
+
+    if (NOT ${name}_NO_TEMPLATE)
+        set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${name}_main.cpp)
+        if (${name}_TEMPLATE)
+            configure_file(${${name}_TEMPLATE} ${main_path})
+        else()
+            configure_file(${FIPS_GOOGLETESTDIR}/main.cpp.in ${main_path})
+        endif()
+        list(APPEND srcs ${main_path})
+    endif()
+
+    fips_files(${srcs})
+    # add googletest lib dependency
+    fips_deps(googletest ${deps})
+    # generate a command line app
+    fips_end_app()
+    set_target_properties(${name} PROPERTIES FOLDER "tests")
+
+    # add as cmake unit test
+    add_test(NAME ${name} COMMAND ${name})
+
+    # if configured, start the app as post-build-step
+    if (FIPS_UNITTESTS_RUN_AFTER_BUILD)
+        add_custom_command (TARGET ${name} POST_BUILD COMMAND ${name})
+    endif()
+    set(FipsAddFilesEnabled 1)
+    set(${name}_Sources)
+    set(${name}_Deps)
+endmacro()
