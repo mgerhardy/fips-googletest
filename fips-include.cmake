@@ -91,9 +91,11 @@ endmacro()
 #   gtest_suite_files(files)
 #   Adds files to a test suite
 #
-macro(gtest_suite_files name files)
+macro(gtest_suite_files name)
+    set(ARG_LIST ${ARGV})
+    list(REMOVE_AT ARG_LIST 0)
     get_property(list GLOBAL PROPERTY ${name}_Sources)
-    foreach(entry ${files})
+    foreach(entry ${ARG_LIST})
         list(APPEND list ${CMAKE_CURRENT_SOURCE_DIR}/${entry})
     endforeach()
     set_property(GLOBAL PROPERTY ${name}_Sources ${list})
@@ -103,9 +105,11 @@ endmacro()
 #   gtest_suite_deps(files)
 #   Adds files to a test suite
 #
-macro(gtest_suite_deps name deps)
+macro(gtest_suite_deps name)
+    set(ARG_LIST ${ARGV})
+    list(REMOVE_AT ARG_LIST 0)
     get_property(list GLOBAL PROPERTY ${name}_Deps)
-    list(APPEND list ${deps})
+    list(APPEND list ${ARG_LIST})
     set_property(GLOBAL PROPERTY ${name}_Deps ${list})
 endmacro()
 
@@ -121,7 +125,6 @@ macro(gtest_suite_end name)
     fips_begin_app(${name} ${${name}_CurAppType})
     get_property(srcs GLOBAL PROPERTY ${name}_Sources)
     get_property(deps GLOBAL PROPERTY ${name}_Deps)
-    message(STATUS "${name}_Sources => ${srcs}")
 
     if (NOT ${name}_NO_TEMPLATE)
         set(main_path ${CMAKE_CURRENT_BINARY_DIR}/${name}_main.cpp)
@@ -139,6 +142,10 @@ macro(gtest_suite_end name)
     # generate a command line app
     fips_end_app()
     set_target_properties(${name} PROPERTIES FOLDER "tests")
+    # silence some warnings
+    if(FIPS_LINUX)
+        set_target_properties(${name} PROPERTIES COMPILE_FLAGS "-Wno-sign-compare")
+    endif()
 
     # add as cmake unit test
     add_test(NAME ${name} COMMAND ${name})
@@ -148,6 +155,4 @@ macro(gtest_suite_end name)
         add_custom_command (TARGET ${name} POST_BUILD COMMAND ${name})
     endif()
     set(FipsAddFilesEnabled 1)
-    set(${name}_Sources)
-    set(${name}_Deps)
 endmacro()
